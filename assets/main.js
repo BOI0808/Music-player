@@ -1,8 +1,16 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+const player = $(".player");
+const cd = $(".cd");
+const heading = $("header h2");
+const cdThumb = $(".cd-thumb");
+const audio = $("#audio");
+const playBtn = $(".btn-toggle-play");
+
 const app = {
   currentIndex: 0,
+  isPlaying: false,
   songs: [
     {
       name: "Nevada",
@@ -93,9 +101,10 @@ const app = {
     });
   },
   handleEvents: function () {
-    const cd = $(".cd");
+    const _this = this;
     const cdWidth = cd.offsetWidth;
 
+    // Xử lí phóng to / thu nhỏ cd
     document.onscroll = function () {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const newCdWidth = cdWidth - scrollTop;
@@ -103,12 +112,29 @@ const app = {
       cd.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
       cd.style.opacity = newCdWidth / cdWidth;
     };
+
+    // Xử lí khi click play
+    playBtn.onclick = function () {
+      if (_this.isPlaying) {
+        audio.pause();
+      } else {
+        audio.play();
+      }
+    };
+
+    // Khi song được played
+    audio.onplay = function () {
+      _this.isPlaying = true;
+      player.classList.add("playing");
+    };
+
+    // Khi song bị paused
+    audio.onpause = function () {
+      _this.isPlaying = false;
+      player.classList.remove("playing");
+    };
   },
   loadCurrentSong: function () {
-    const heading = $("header h2");
-    const cdThumb = $(".cd-thumb");
-    const audio = $("#audio");
-
     heading.textContent = this.currentSong.name;
     cdThumb.style.backgroundImage = `url("${this.currentSong.image}")`;
     audio.src = this.currentSong.path;
