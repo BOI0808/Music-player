@@ -22,6 +22,7 @@ const app = {
   isRandom: false,
   isRepeat: false,
   config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
+  shuffledList: [],
   songs: [
     {
       name: "Nevada",
@@ -289,13 +290,33 @@ const app = {
     }
     this.loadCurrentSong();
   },
-  playRandomSong: function () {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * this.songs.length);
-    } while (newIndex === this.currentIndex);
 
-    this.currentIndex = newIndex;
+  shuffleArray: function (array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  },
+
+  playRandomSong: function () {
+    // Nếu shuffledList trống, shuffle lại toàn bộ
+    if (this.shuffledList.length === 0) {
+      this.shuffledList = this.shuffleArray([
+        ...Array(this.songs.length).keys(), //tạo ra một iterator (bộ sinh) gồm các chỉ số từ 0 đến length-1.
+      ]); //[0,1,2...]
+    }
+
+    // Đảm bảo bài đầu tiên không trùng với currentIndex
+    if (this.shuffledList[0] === this.currentIndex) {
+      [this.shuffledList[0], this.shuffledList[1]] = [
+        this.shuffledList[1],
+        this.shuffledList[0],
+      ];
+    }
+
+    // Lấy 1 bài từ shuffledList
+    this.currentIndex = this.shuffledList.shift();
     this.loadCurrentSong();
   },
   start: function () {
