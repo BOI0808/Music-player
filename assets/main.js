@@ -21,6 +21,7 @@ const app = {
   isPlaying: false,
   isRandom: false,
   isRepeat: false,
+  isSeeking: false,
   config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
   shuffledList: [],
   songs: [
@@ -170,11 +171,13 @@ const app = {
 
     // Khi tiến độ bài hát thay đổi
     audio.ontimeupdate = function () {
-      if (audio.duration) {
-        const progressPercent = Math.floor(
-          (audio.currentTime / audio.duration) * 100
-        );
-        progress.value = progressPercent;
+      if (!isSeeking) {
+        if (audio.duration) {
+          const progressPercent = Math.floor(
+            (audio.currentTime / audio.duration) * 100
+          );
+          progress.value = progressPercent;
+        }
       }
     };
 
@@ -182,6 +185,16 @@ const app = {
     progress.onchange = function (e) {
       const seekTime = (audio.duration / 100) * e.target.value;
       audio.currentTime = seekTime;
+    };
+
+    // Khi user đang giữ chuột trên thanh progress
+    progress.onmousedown = function (e) {
+      isSeeking = true;
+    };
+
+    // Khi user thả chuột trên thanh progress
+    progress.onmouseup = function (e) {
+      isSeeking = false;
     };
 
     // Khi next song
