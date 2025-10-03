@@ -171,12 +171,13 @@ const app = {
 
     // Khi tiến độ bài hát thay đổi
     audio.ontimeupdate = function () {
-      if (!isSeeking) {
+      if (!_this.isSeeking) {
         if (audio.duration) {
           const progressPercent = Math.floor(
             (audio.currentTime / audio.duration) * 100
           );
           progress.value = progressPercent;
+          _this.setConfig("currentTime", audio.currentTime);
         }
       }
     };
@@ -189,12 +190,12 @@ const app = {
 
     // Khi user đang giữ chuột trên thanh progress
     progress.onmousedown = function (e) {
-      isSeeking = true;
+      _this.isSeeking = true;
     };
 
     // Khi user thả chuột trên thanh progress
     progress.onmouseup = function (e) {
-      isSeeking = false;
+      _this.isSeeking = false;
     };
 
     // Khi next song
@@ -284,10 +285,17 @@ const app = {
     heading.textContent = this.currentSong.name;
     cdThumb.style.backgroundImage = `url("${this.currentSong.image}")`;
     audio.src = this.currentSong.path;
+
+    // Mỗi lần đổi bài thì lưu lại index
+    this.setConfig("currentIndex", this.currentIndex);
   },
   loadConfig: function () {
-    this.isRandom = this.config.isRandom;
-    this.isRepeat = this.config.isRepeat;
+    this.isRandom = this.config.isRandom || false;
+    this.isRepeat = this.config.isRepeat || false;
+    this.currentIndex = this.config.currentIndex || 0;
+
+    // Nếu có thời gian trước đó thì set lại
+    if (this.config.currentTime) audio.currentTime = this.config.currentTime;
   },
   nextSong: function () {
     this.currentIndex++;
