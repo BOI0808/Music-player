@@ -10,6 +10,10 @@ const cdThumb = $(".cd-thumb");
 const audio = $("#audio");
 const playBtn = $(".btn-toggle-play");
 const progress = $("#progress");
+const volume = $("#volume");
+const highVolume = $(".volume-control__volume-high");
+const low = $(".volume-control__volume-low");
+const offVolume = $(".volume-control__volume-off");
 const prevBtn = $(".btn-prev");
 const nextBtn = $(".btn-next");
 const randomBtn = $(".btn-random");
@@ -177,6 +181,12 @@ const app = {
             (audio.currentTime / audio.duration) * 100
           );
           progress.value = progressPercent;
+
+          // Cập nhập màu nên thanh background
+          progress.style.background = `linear-gradient(to right, var(--primary-color) ${progressPercent}%, #ccc ${progressPercent}%)`;
+
+          _this.setConfig("progressBackground", this.style.background);
+
           _this.setConfig("currentTime", audio.currentTime);
         }
       }
@@ -196,6 +206,35 @@ const app = {
     // Khi user thả chuột trên thanh progress
     progress.onmouseup = function (e) {
       _this.isSeeking = false;
+    };
+
+    // Cập nhập màu background thanh progress khi user tua bài hát
+    progress.oninput = function () {
+      const value = this.value;
+      this.style.background = `linear-gradient(to right, var(--primary-color) ${value}%, #ccc ${value}%)`;
+    };
+
+    // Cập nhập màu background và âm thanh thanh volume khi user điều chỉnh thanh volume
+    volume.oninput = function (e) {
+      const value = e.target.value;
+      this.style.background = `linear-gradient(to right, var(--primary-color) ${value}%, #ccc ${value}%)`;
+      audio.volume = value / 100;
+      _this.setConfig("volumeValue", audio.volume);
+
+      // Logic xử lí thay đôi icon volume
+      if (audio.volume === 0) {
+        low.style.display = "none";
+        offVolume.style.display = "block";
+        highVolume.style.display = "none";
+      } else if (audio.volume < 0.5) {
+        low.style.display = "block";
+        offVolume.style.display = "none";
+        highVolume.style.display = "none";
+      } else {
+        offVolume.style.display = "none";
+        low.style.display = "none";
+        highVolume.style.display = "block";
+      }
     };
 
     // Khi next song
@@ -294,8 +333,31 @@ const app = {
     this.isRepeat = this.config.isRepeat || false;
     this.currentIndex = this.config.currentIndex || 0;
 
-    // Nếu có thời gian trước đó thì set lại
-    if (this.config.currentTime) audio.currentTime = this.config.currentTime;
+    // Load thanh progress
+    if (this.config.currentTime) {
+      audio.currentTime = this.config.currentTime;
+      progress.style.background = this.config.progressBackground;
+    }
+
+    // Load thanh volume
+    if (this.config.volumeValue !== undefined) {
+      audio.volume = this.config.volumeValue;
+      volume.value = this.config.volumeValue * 100;
+      volume.style.background = `linear-gradient(to right, var(--primary-color) ${volume.value}%, #ccc ${volume.value}%)`;
+      if (audio.volume === 0) {
+        low.style.display = "none";
+        offVolume.style.display = "block";
+        highVolume.style.display = "none";
+      } else if (audio.volume < 0.5) {
+        low.style.display = "block";
+        offVolume.style.display = "none";
+        highVolume.style.display = "none";
+      } else {
+        offVolume.style.display = "none";
+        low.style.display = "none";
+        highVolume.style.display = "block";
+      }
+    }
   },
   nextSong: function () {
     this.currentIndex++;

@@ -9,6 +9,13 @@
       integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
@@ -65,6 +72,27 @@
           min="0"
           max="100"
         />
+
+        <div class="volume-control">
+          <div class="volume-control__volume-high">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="volume-control__volume-low">
+            <i class="fa-solid fa-volume-low"></i>
+          </div>
+          <div class="volume-control__volume-off">
+            <i class="fa-solid fa-volume-off"></i>
+          </div>
+          <input
+            id="volume"
+            class="volume"
+            type="range"
+            value="0"
+            step="1"
+            min="0"
+            max="100"
+          />
+        </div>
 
         <audio id="audio" src=""></audio>
       </div>
