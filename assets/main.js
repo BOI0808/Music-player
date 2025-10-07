@@ -377,6 +377,12 @@ const app = {
       progress.style.background = this.config.progressBackground;
     }
 
+    // Nếu chưa có volumeValue thì đặt mặc định 100%
+    if (this.volumeValue === undefined) {
+      this.config.volumeValue = 1;
+      this.setConfig("volumeValue", 1);
+    }
+
     // Load thanh volume
     if (this.config.volumeValue !== undefined) {
       audio.volume = this.config.volumeValue;
