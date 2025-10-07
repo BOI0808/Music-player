@@ -126,6 +126,27 @@ const app = {
       },
     });
   },
+  updateRangeBackground: function (range, value) {
+    range.style.background = `linear-gradient(to right, var(--primary-color) ${value}%, #ccc ${value}%)`;
+  },
+  updateVolumeIcon: function (volumeValue) {
+    if (volumeValue === 0) {
+      low.style.display = "none";
+      offVolume.style.display = "block";
+      highVolume.style.display = "none";
+      xmarkVolume.style.display = "none";
+    } else if (volumeValue < 0.5) {
+      low.style.display = "block";
+      offVolume.style.display = "none";
+      highVolume.style.display = "none";
+      xmarkVolume.style.display = "none";
+    } else {
+      offVolume.style.display = "none";
+      low.style.display = "none";
+      highVolume.style.display = "block";
+      xmarkVolume.style.display = "none";
+    }
+  },
   handleEvents: function () {
     const _this = this;
     const cdWidth = cd.offsetWidth;
@@ -186,9 +207,7 @@ const app = {
           progress.value = progressPercent;
 
           // Cập nhập màu nên thanh background
-          progress.style.background = `linear-gradient(to right, var(--primary-color) ${progressPercent}%, #ccc ${progressPercent}%)`;
-
-          _this.setConfig("progressBackground", this.style.background);
+          _this.updateRangeBackground(progress, progress.value);
 
           _this.setConfig("currentTime", audio.currentTime);
         }
@@ -214,30 +233,18 @@ const app = {
     // Cập nhập màu background thanh progress khi user tua bài hát
     progress.oninput = function () {
       const value = this.value;
-      this.style.background = `linear-gradient(to right, var(--primary-color) ${value}%, #ccc ${value}%)`;
+      _this.updateRangeBackground(this, value);
     };
 
     // Cập nhập màu background và âm thanh thanh volume khi user điều chỉnh thanh volume
     volume.oninput = function (e) {
       const value = e.target.value;
-      this.style.background = `linear-gradient(to right, var(--primary-color) ${value}%, #ccc ${value}%)`;
+      _this.updateRangeBackground(this, value);
       audio.volume = value / 100;
       _this.setConfig("volumeValue", audio.volume);
 
       // Logic xử lí thay đôi icon volume
-      if (audio.volume === 0) {
-        low.style.display = "none";
-        offVolume.style.display = "block";
-        highVolume.style.display = "none";
-      } else if (audio.volume < 0.5) {
-        low.style.display = "block";
-        offVolume.style.display = "none";
-        highVolume.style.display = "none";
-      } else {
-        offVolume.style.display = "none";
-        low.style.display = "none";
-        highVolume.style.display = "block";
-      }
+      _this.updateVolumeIcon(audio.volume);
     };
 
     // Khi click vào volume
@@ -246,9 +253,9 @@ const app = {
         // Tắt âm thanh
         audio.volume = 0;
         volume.value = 0;
-        volume.style.background = `linear-gradient(to right, var(--primary-color) 0%, #ccc 0%)`;
+        _this.updateRangeBackground(volume, 0);
         _this.isMute = true;
-        _this.setConfig("isMute", true);
+        _this.setConfig("isMute", _this.isMute);
 
         // Hiện thỉ icon xmark
         offVolume.style.display = "none";
@@ -259,19 +266,12 @@ const app = {
         const oldVolume = _this.config.volumeValue || 1;
         audio.volume = oldVolume;
         volume.value = oldVolume * 100;
-        volume.style.background = `linear-gradient(to right, var(--primary-color) ${volume.value}%, #ccc ${volume.value}%)`;
+        _this.updateRangeBackground(volume, volume.value);
         _this.isMute = false;
-        _this.setConfig("isMute", true);
+        _this.setConfig("isMute", _this.isMute);
 
         // Hiện thỉ lại icon đúng số mức của nó
-        xmarkVolume.style.display = "none";
-        if (audio.volume === 0) {
-          offVolume.style.display = "block";
-        } else if (audio.volume < 0.5) {
-          low.style.display = "block";
-        } else {
-          highVolume.style.display = "block";
-        }
+        _this.updateVolumeIcon(audio.volume);
       }
     };
 
@@ -378,7 +378,7 @@ const app = {
     }
 
     // Nếu chưa có volumeValue thì đặt mặc định 100%
-    if (this.volumeValue === undefined) {
+    if (this.config.volumeValue === undefined) {
       this.config.volumeValue = 1;
       this.setConfig("volumeValue", 1);
     }
@@ -387,20 +387,8 @@ const app = {
     if (this.config.volumeValue !== undefined) {
       audio.volume = this.config.volumeValue;
       volume.value = this.config.volumeValue * 100;
-      volume.style.background = `linear-gradient(to right, var(--primary-color) ${volume.value}%, #ccc ${volume.value}%)`;
-      if (audio.volume === 0) {
-        low.style.display = "none";
-        offVolume.style.display = "block";
-        highVolume.style.display = "none";
-      } else if (audio.volume < 0.5) {
-        low.style.display = "block";
-        offVolume.style.display = "none";
-        highVolume.style.display = "none";
-      } else {
-        offVolume.style.display = "none";
-        low.style.display = "none";
-        highVolume.style.display = "block";
-      }
+      this.updateRangeBackground(volume, volume.value);
+      this.updateVolumeIcon(audio.volume);
     }
   },
   nextSong: function () {
