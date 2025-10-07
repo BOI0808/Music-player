@@ -134,6 +134,10 @@ header h2 {
   cursor: pointer;
 }
 
+.volume-container:hover {
+  cursor: pointer;
+}
+
 .volume-control {
   display: flex;
   align-items: center;
@@ -142,7 +146,8 @@ header h2 {
 }
 
 .volume-control__volume-low,
-.volume-control__volume-off {
+.volume-control__volume-off,
+.volume-control__volume-xmark {
   display: none;
 }
 

@@ -10,10 +10,12 @@ const cdThumb = $(".cd-thumb");
 const audio = $("#audio");
 const playBtn = $(".btn-toggle-play");
 const progress = $("#progress");
+const volumeContainer = $(".volume-container");
 const volume = $("#volume");
 const highVolume = $(".volume-control__volume-high");
 const low = $(".volume-control__volume-low");
 const offVolume = $(".volume-control__volume-off");
+const xmarkVolume = $(".volume-control__volume-xmark");
 const prevBtn = $(".btn-prev");
 const nextBtn = $(".btn-next");
 const randomBtn = $(".btn-random");
@@ -26,6 +28,7 @@ const app = {
   isRandom: false,
   isRepeat: false,
   isSeeking: false,
+  isMute: false,
   config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
   shuffledList: [],
   songs: [
@@ -234,6 +237,41 @@ const app = {
         offVolume.style.display = "none";
         low.style.display = "none";
         highVolume.style.display = "block";
+      }
+    };
+
+    // Khi click vào volume
+    volumeContainer.onclick = function (e) {
+      if (!_this.isMute) {
+        // Tắt âm thanh
+        audio.volume = 0;
+        volume.value = 0;
+        volume.style.background = `linear-gradient(to right, var(--primary-color) 0%, #ccc 0%)`;
+        _this.isMute = true;
+        _this.setConfig("isMute", true);
+
+        // Hiện thỉ icon xmark
+        offVolume.style.display = "none";
+        low.style.display = "none";
+        highVolume.style.display = "none";
+        xmarkVolume.style.display = "block";
+      } else {
+        const oldVolume = _this.config.volumeValue || 1;
+        audio.volume = oldVolume;
+        volume.value = oldVolume * 100;
+        volume.style.background = `linear-gradient(to right, var(--primary-color) ${volume.value}%, #ccc ${volume.value}%)`;
+        _this.isMute = false;
+        _this.setConfig("isMute", true);
+
+        // Hiện thỉ lại icon đúng số mức của nó
+        xmarkVolume.style.display = "none";
+        if (audio.volume === 0) {
+          offVolume.style.display = "block";
+        } else if (audio.volume < 0.5) {
+          low.style.display = "block";
+        } else {
+          highVolume.style.display = "block";
+        }
       }
     };
 
